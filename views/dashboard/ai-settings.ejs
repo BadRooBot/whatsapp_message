@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إعدادات الذكاء الاصطناعي - WhatsApp Messenger</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <%- include('../partials/layout') %>
+  <div class="container-fluid">
+    <div class="row">
+      
+      <div class="col-md-10 main-content">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="mb-4"><i class="fas fa-robot"></i> إعدادات الذكاء الاصطناعي</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-cogs"></i> إعدادات أساسية</h4>
+              </div>
+              <div class="card-body">
+                <form id="ai-settings-form">
+                  <div class="mb-3">
+                    <label for="api-key" class="form-label">مفتاح API للذكاء الاصطناعي</label>
+                    <div class="input-group">
+                      <input type="password" class="form-control" id="api-key" name="api_key" 
+                        value="<%= aiSettings.api_key %>" placeholder="أدخل مفتاح API" required>
+                      <button class="btn btn-outline-secondary" type="button" id="toggle-api-key">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                    <div class="form-text">مفتاح API الخاص بك للوصول إلى خدمات الذكاء الاصطناعي.</div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="model" class="form-label">نموذج الذكاء الاصطناعي</label>
+                    <select class="form-select" id="model" name="model">
+                      <option value="gpt-3.5-turbo" <%= aiSettings.model === 'gpt-3.5-turbo' ? 'selected' : '' %>>GPT-3.5 Turbo</option>
+                      <option value="gpt-4" <%= aiSettings.model === 'gpt-4' ? 'selected' : '' %>>GPT-4</option>
+                      <option value="gpt-4-turbo" <%= aiSettings.model === 'gpt-4-turbo' ? 'selected' : '' %>>GPT-4 Turbo</option>
+                      <option value="claude-3-opus" <%= aiSettings.model === 'claude-3-opus' ? 'selected' : '' %>>Claude 3 Opus</option>
+                      <option value="claude-3-sonnet" <%= aiSettings.model === 'claude-3-sonnet' ? 'selected' : '' %>>Claude 3 Sonnet</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="temperature" class="form-label">درجة الإبداعية (Temperature): <%= aiSettings.temperature %></label>
+                    <input type="range" class="form-range" id="temperature" name="temperature" 
+                      min="0" max="1" step="0.1" value="<%= aiSettings.temperature %>">
+                    <div class="d-flex justify-content-between">
+                      <span class="badge bg-secondary">محدد (0)</span>
+                      <span class="badge bg-secondary">متوازن (0.5)</span>
+                      <span class="badge bg-secondary">إبداعي (1)</span>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="auto-reply" name="auto_reply" 
+                        <%= aiSettings.auto_reply ? 'checked' : '' %>>
+                      <label class="form-check-label" for="auto-reply">الرد التلقائي على الرسائل</label>
+                    </div>
+                    <div class="form-text">السماح للذكاء الاصطناعي بالرد تلقائيًا على الرسائل الواردة.</div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-brain"></i> إعدادات متقدمة</h4>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <label for="system-prompt" class="form-label">توجيه النظام (System Prompt)</label>
+                  <textarea class="form-control" id="system-prompt" name="system_prompt" rows="4" 
+                    placeholder="أدخل توجيه النظام الأساسي للذكاء الاصطناعي..."><%= aiSettings.system_prompt %></textarea>
+                  <div class="form-text">هذا التوجيه يشرح للذكاء الاصطناعي دوره وكيفية الرد على المستخدمين.</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="max-tokens" class="form-label">الحد الأقصى للكلمات: <%= aiSettings.max_tokens %></label>
+                  <input type="range" class="form-range" id="max-tokens" name="max_tokens" 
+                    min="100" max="4000" step="100" value="<%= aiSettings.max_tokens %>">
+                  <div class="form-text">يحدد طول الاستجابة القصوى من الذكاء الاصطناعي.</div>
+                </div>
+
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="memory-enabled" name="memory_enabled" 
+                      <%= aiSettings.memory_enabled ? 'checked' : '' %>>
+                    <label class="form-check-label" for="memory-enabled">تمكين ذاكرة المحادثة</label>
+                  </div>
+                  <div class="form-text">تمكين الذكاء الاصطناعي من تذكر المحادثات السابقة للردود السياقية.</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="memory-window" class="form-label">نافذة الذاكرة (عدد الرسائل): <%= aiSettings.memory_window %></label>
+                  <input type="range" class="form-range" id="memory-window" name="memory_window" 
+                    min="1" max="20" step="1" value="<%= aiSettings.memory_window %>" 
+                    <%= !aiSettings.memory_enabled ? 'disabled' : '' %>>
+                  <div class="form-text">عدد الرسائل السابقة التي يتذكرها الذكاء الاصطناعي للسياق.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header bg-success text-white">
+                <h4><i class="fas fa-users-cog"></i> إعدادات الاستجابة للمجموعات</h4>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="group-reply-enabled" name="group_reply_enabled" 
+                      <%= aiSettings.group_reply_enabled ? 'checked' : '' %>>
+                    <label class="form-check-label" for="group-reply-enabled">تمكين الرد على رسائل المجموعات</label>
+                  </div>
+                  <div class="form-text">السماح للذكاء الاصطناعي بالرد على الرسائل في المجموعات.</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="group-trigger" class="form-label">كلمة تفعيل الذكاء الاصطناعي في المجموعات</label>
+                  <input type="text" class="form-control" id="group-trigger" name="group_trigger" 
+                    value="<%= aiSettings.group_trigger %>" placeholder="مثال: بوت، ذكاء، AI" 
+                    <%= !aiSettings.group_reply_enabled ? 'disabled' : '' %>>
+                  <div class="form-text">الكلمات التي ستجعل الذكاء الاصطناعي يرد في المجموعات. استخدم الفاصلة للفصل بين الكلمات.</div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="allowed-groups" class="form-label">المجموعات المسموح بها</label>
+                  <select class="form-select" id="allowed-groups" name="allowed_groups[]" multiple 
+                    <%= !aiSettings.group_reply_enabled ? 'disabled' : '' %>>
+                    <% groups.forEach(group => { %>
+                      <option value="<%= group.id %>" 
+                        <%= aiSettings.allowed_groups && aiSettings.allowed_groups.includes(group.id) ? 'selected' : '' %>>
+                        <%= group.name %>
+                      </option>
+                    <% }); %>
+                  </select>
+                  <div class="form-text">اختر المجموعات التي يمكن للذكاء الاصطناعي الرد فيها. اترك فارغًا للسماح بجميع المجموعات.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12 d-flex justify-content-end">
+            <button type="button" class="btn btn-secondary me-2" id="reset-defaults">
+              <i class="fas fa-undo"></i> استعادة الإعدادات الافتراضية
+            </button>
+            <button type="button" class="btn btn-primary" id="save-settings">
+              <i class="fas fa-save"></i> حفظ الإعدادات
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    $(document).ready(function() {
+      // عرض وإخفاء مفتاح API
+      $("#toggle-api-key").click(function() {
+        var apiKeyInput = $("#api-key");
+        if (apiKeyInput.attr("type") === "password") {
+          apiKeyInput.attr("type", "text");
+          $(this).html('<i class="fas fa-eye-slash"></i>');
+        } else {
+          apiKeyInput.attr("type", "password");
+          $(this).html('<i class="fas fa-eye"></i>');
+        }
+      });
+
+      // تحديث قيمة درجة الحرارة مباشرة
+      $("#temperature").on("input", function() {
+        $("label[for='temperature']").text(`درجة الإبداعية (Temperature): ${$(this).val()}`);
+      });
+
+      // تحديث قيمة الحد الأقصى للكلمات مباشرة
+      $("#max-tokens").on("input", function() {
+        $("label[for='max-tokens']").text(`الحد الأقصى للكلمات: ${$(this).val()}`);
+      });
+
+      // تحديث قيمة نافذة الذاكرة مباشرة
+      $("#memory-window").on("input", function() {
+        $("label[for='memory-window']").text(`نافذة الذاكرة (عدد الرسائل): ${$(this).val()}`);
+      });
+
+      // تفعيل/تعطيل خيارات الذاكرة
+      $("#memory-enabled").change(function() {
+        if ($(this).is(":checked")) {
+          $("#memory-window").prop("disabled", false);
+        } else {
+          $("#memory-window").prop("disabled", true);
+        }
+      });
+
+      // تفعيل/تعطيل خيارات المجموعة
+      $("#group-reply-enabled").change(function() {
+        if ($(this).is(":checked")) {
+          $("#group-trigger").prop("disabled", false);
+          $("#allowed-groups").prop("disabled", false);
+        } else {
+          $("#group-trigger").prop("disabled", true);
+          $("#allowed-groups").prop("disabled", true);
+        }
+      });
+
+      // إرسال الإعدادات
+      $("#save-settings").click(function() {
+        // جمع البيانات من النموذج
+        const formData = {
+          api_key: $("#api-key").val(),
+          model: $("#model").val(),
+          temperature: parseFloat($("#temperature").val()),
+          auto_reply: $("#auto-reply").is(":checked"),
+          system_prompt: $("#system-prompt").val(),
+          max_tokens: parseInt($("#max-tokens").val()),
+          memory_enabled: $("#memory-enabled").is(":checked"),
+          memory_window: parseInt($("#memory-window").val()),
+          group_reply_enabled: $("#group-reply-enabled").is(":checked"),
+          group_trigger: $("#group-trigger").val(),
+          allowed_groups: $("#allowed-groups").val()
+        };
+
+        // إرسال البيانات إلى الخادم
+        $.ajax({
+          url: "/ai/settings",
+          type: "POST",
+          contentType: "application/json",
+          data: JSON.stringify(formData),
+          success: function(response) {
+            alert("تم حفظ الإعدادات بنجاح!");
+          },
+          error: function(error) {
+            alert("حدث خطأ أثناء حفظ الإعدادات: " + error.responseJSON.message);
+          }
+        });
+      });
+
+      // استعادة الإعدادات الافتراضية
+      $("#reset-defaults").click(function() {
+        if (confirm("هل أنت متأكد من استعادة الإعدادات الافتراضية؟")) {
+          $.ajax({
+            url: "/ai/settings/reset",
+            type: "POST",
+            success: function(response) {
+              alert("تم استعادة الإعدادات الافتراضية بنجاح!");
+              location.reload();
+            },
+            error: function(error) {
+              alert("حدث خطأ أثناء استعادة الإعدادات: " + error.responseJSON.message);
+            }
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

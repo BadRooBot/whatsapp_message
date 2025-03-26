@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>جهات الاتصال - WhatsApp Messenger</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <%- include('../partials/layout') %>
+  <div class="container-fluid">
+    <div class="row">
+      
+      <div class="col-md-10 main-content">
+        <div class="row">
+          <div class="col-12 d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-address-book"></i> جهات الاتصال</h1>
+            <div>
+              <a href="/whatsapp/send" class="btn btn-success">
+                <i class="fas fa-paper-plane"></i> إرسال رسالة
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-users"></i> جهات الاتصال والمجموعات</h4>
+                <span class="badge bg-light text-dark"><%= contacts.length %> جهة اتصال</span>
+              </div>
+              <div class="card-body p-0">
+                <% if (contacts.length === 0) { %>
+                  <div class="text-center p-5">
+                    <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                    <h5>لم يتم العثور على جهات اتصال</h5>
+                    <p>قم بتسجيل الدخول إلى WhatsApp مرة أخرى لتحميل جهات الاتصال.</p>
+                    <a href="/whatsapp/auth" class="btn btn-primary">
+                      <i class="fab fa-whatsapp"></i> تسجيل الدخول إلى WhatsApp
+                    </a>
+                  </div>
+                <% } else { %>
+                  <div class="input-group p-3">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    <input type="text" class="form-control" id="contact-search" placeholder="البحث عن جهة اتصال...">
+                  </div>
+                  <ul class="list-group list-group-flush contact-list">
+                    <% contacts.forEach(contact => { %>
+                      <li class="list-group-item contact-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <% if (contact.is_group) { %>
+                              <i class="fas fa-users me-2 text-info"></i>
+                            <% } else { %>
+                              <i class="fas fa-user me-2 text-primary"></i>
+                            <% } %>
+                            <strong><%= contact.name %></strong>
+                            <% if (contact.number) { %>
+                              <small class="text-muted ms-2"><%= contact.number %></small>
+                            <% } %>
+                          </div>
+                          <div>
+                            <a href="/whatsapp/send?contact=<%= contact.contact_id %>" class="btn btn-sm btn-outline-primary">
+                              <i class="fas fa-paper-plane"></i> إرسال رسالة
+                            </a>
+                          </div>
+                        </div>
+                      </li>
+                    <% }); %>
+                  </ul>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    // البحث في جهات الاتصال
+    $(document).ready(function() {
+      $("#contact-search").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $(".contact-item").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+    });
+  </script>
+</body>
+</html> 

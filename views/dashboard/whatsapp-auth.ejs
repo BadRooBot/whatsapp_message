@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول إلى WhatsApp - WhatsApp Messenger</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <%- include('../partials/layout') %>
+  <div class="container-fluid">
+    <div class="row">
+      
+      <div class="col-md-10 main-content">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="mb-4"><i class="fab fa-whatsapp"></i> تسجيل الدخول إلى WhatsApp</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-8 offset-md-2">
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-qrcode"></i> مسح رمز QR للاتصال</h4>
+              </div>
+              <div class="card-body text-center">
+                <p class="mb-4">امسح رمز QR التالي باستخدام تطبيق WhatsApp على هاتفك:</p>
+                
+                <div id="status-container" class="mb-3">
+                  <div class="alert alert-info">
+                    <i class="fas fa-spinner fa-spin"></i> جاري إنشاء رمز QR، يرجى الانتظار...
+                  </div>
+                </div>
+                
+                <div id="qr-container" class="qr-code-container d-inline-block">
+                  <div class="text-center p-5">
+                    <i class="fas fa-spinner fa-spin fa-3x"></i>
+                  </div>
+                </div>
+                
+                <div id="retry-container" class="mt-3 mb-3 d-none">
+                  <p class="text-warning">يبدو أن هناك تأخير في عملية الاتصال. قد تكون هناك مشكلة في الاتصال بـ WhatsApp.</p>
+                  <button id="retry-button" class="btn btn-warning">
+                    <i class="fas fa-sync"></i> إعادة المحاولة
+                  </button>
+                </div>
+                
+                <div id="stuck-info" class="alert alert-warning mt-3 mb-3 d-none">
+                  <strong><i class="fas fa-exclamation-triangle"></i> تم المصادقة، لكن الاتصال لم يكتمل بعد.</strong><br>
+                  <span>قد يكون هناك مشكلة في اتصالك بخوادم واتساب. انقر على "إعادة الاتصال" للمحاولة مرة أخرى.</span><br>
+                  <button id="reconnect-button" class="btn btn-sm btn-warning mt-2">
+                    <i class="fas fa-plug"></i> إعادة الاتصال
+                  </button>
+                </div>
+                
+                <div class="mt-4">
+                  <p class="small text-muted mb-4">كيفية مسح رمز QR:</p>
+                  <ol class="text-start small">
+                    <li>افتح تطبيق WhatsApp على هاتفك</li>
+                    <li>انقر على <strong>القائمة</strong> (النقاط الثلاث في الأعلى) أو <strong>الإعدادات</strong></li>
+                    <li>اختر <strong>الأجهزة المرتبطة</strong></li>
+                    <li>انقر على <strong>ربط جهاز</strong></li>
+                    <li>وجه كاميرا هاتفك نحو رمز QR على هذه الشاشة</li>
+                  </ol>
+                </div>
+              </div>
+              <div class="card-footer">
+                <a href="/whatsapp/dashboard" class="btn btn-secondary">
+                  <i class="fas fa-arrow-left"></i> العودة إلى لوحة التحكم
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      let stuckTimer = null;
+      let totalTimeWaiting = 0;
+      
+      // Fetch session status periodically
+      function checkSessionStatus() {
+        $.ajax({
+          url: '/whatsapp/session-status',
+          method: 'GET',
+          dataType: 'json',
+          success: function(data) {
+            updateUI(data);
+            
+            // Schedule next check
+            setTimeout(checkSessionStatus, 3000);
+          },
+          error: function() {
+            $('#status-container').html(`
+              <div class="alert alert-danger">
+                <i class="fas fa-times-circle"></i> حدث خطأ أثناء التحقق من حالة الجلسة. 
+                <button class="btn btn-sm btn-danger ms-2" onclick="location.reload()">
+                  <i class="fas fa-sync"></i> إعادة تحميل الصفحة
+                </button>
+              </div>
+            `);
+            
+            // Try again after 5 seconds
+            setTimeout(checkSessionStatus, 5000);
+          }
+        });
+      }
+      
+      // Update UI based on session status
+      function updateUI(data) {
+        // Update status message
+        let statusMessage = '';
+        let statusClass = 'info';
+        
+        switch(data.status) {
+          case 'PENDING':
+            statusMessage = '<i class="fas fa-qrcode"></i> يرجى مسح رمز QR باستخدام هاتفك';
+            
+            // Show QR code
+            if (data.qr) {
+              $('#qr-container').html(`<img src="${data.qr}" alt="QR Code" class="img-fluid">`);
+            }
+            
+            // Hide retry after 45 seconds
+            if (totalTimeWaiting > 45) {
+              $('#retry-container').removeClass('d-none');
+            }
+            break;
+            
+          case 'AUTHENTICATED':
+            statusClass = 'success';
+            statusMessage = '<i class="fas fa-check-circle"></i> تم المصادقة، لكن الاتصال لم يكتمل بعد. يرجى الانتظار لحظة...';
+            
+            // Hide QR
+            $('#qr-container').html('<i class="fas fa-spinner fa-spin fa-3x"></i>');
+            
+            // Check for stuck session
+            if (!stuckTimer) {
+              stuckTimer = setTimeout(function() {
+                $('#stuck-info').removeClass('d-none');
+              }, 15000); // Show stuck message after 15 seconds in authenticated state
+            }
+            
+            // If we have diagnostic data about stuck time
+            if (data.may_be_stuck) {
+              $('#stuck-info').removeClass('d-none');
+            }
+            break;
+            
+          case 'READY':
+            statusClass = 'success';
+            statusMessage = '<i class="fas fa-check-circle"></i> تم الاتصال بنجاح! جاري التحويل...';
+            
+            // Clear stuck timer if it exists
+            if (stuckTimer) {
+              clearTimeout(stuckTimer);
+              stuckTimer = null;
+            }
+            
+            // Redirect to contacts page after a short delay
+            setTimeout(function() {
+              window.location.href = '/whatsapp/contacts';
+            }, 2000);
+            break;
+            
+          case 'ERROR':
+          case 'AUTH_FAILURE':
+          case 'DISCONNECTED':
+            statusClass = 'danger';
+            statusMessage = `<i class="fas fa-times-circle"></i> حدث خطأ: ${data.error || data.reason || 'فشل الاتصال'}`;
+            $('#retry-container').removeClass('d-none');
+            break;
+            
+          default:
+            statusClass = 'warning';
+            statusMessage = '<i class="fas fa-sync fa-spin"></i> جاري تهيئة الاتصال...';
+        }
+        
+        $('#status-container').html(`
+          <div class="alert alert-${statusClass}">
+            ${statusMessage}
+          </div>
+        `);
+        
+        // Increment waiting time
+        totalTimeWaiting += 3;
+      }
+      
+      // Retry button click handler
+      $('#retry-button, #reconnect-button').on('click', function() {
+        $('#status-container').html(`
+          <div class="alert alert-warning">
+            <i class="fas fa-sync fa-spin"></i> جاري إعادة الاتصال...
+          </div>
+        `);
+        
+        $('#qr-container').html('<i class="fas fa-spinner fa-spin fa-3x"></i>');
+        $('#retry-container').addClass('d-none');
+        $('#stuck-info').addClass('d-none');
+        
+        // Reset counters
+        totalTimeWaiting = 0;
+        if (stuckTimer) {
+          clearTimeout(stuckTimer);
+          stuckTimer = null;
+        }
+        
+        // Call reconnect endpoint
+        $.ajax({
+          url: '/whatsapp/reconnect',
+          method: 'POST',
+          dataType: 'json',
+          success: function() {
+            // Just wait for the next status check
+            setTimeout(checkSessionStatus, 2000);
+          },
+          error: function() {
+            $('#status-container').html(`
+              <div class="alert alert-danger">
+                <i class="fas fa-times-circle"></i> فشلت إعادة الاتصال. 
+                <button class="btn btn-sm btn-danger ms-2" onclick="location.reload()">
+                  <i class="fas fa-sync"></i> إعادة تحميل الصفحة
+                </button>
+              </div>
+            `);
+          }
+        });
+      });
+      
+      // Start checking session status
+      checkSessionStatus();
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,94 @@
+<div class="sidebar-container">
+  <div class="sidebar-header mb-4">
+    <div class="text-center">
+      <img src="/images/logo.png" alt="WhatsApp Messenger" class="sidebar-logo">
+      <h3 class="sidebar-title mt-2">WhatsApp Messenger</h3>
+      <p class="text-muted">الإصدار 1.0.0</p>
+    </div>
+  </div>
+
+  <div class="sidebar-menu">
+    <ul class="list-unstyled">
+      <li class="sidebar-item <%= currentPage === 'dashboard' ? 'active' : '' %>">
+        <a href="/whatsapp/dashboard" class="sidebar-link">
+          <i class="fas fa-tachometer-alt"></i> لوحة التحكم
+        </a>
+      </li>
+
+      <li class="sidebar-divider">WhatsApp</li>
+
+      <li class="sidebar-item <%= currentPage === 'whatsapp-auth' ? 'active' : '' %>">
+        <a href="/whatsapp/auth" class="sidebar-link">
+          <i class="fab fa-whatsapp"></i> تسجيل الدخول 
+          <% if (isWhatsAppConnected) { %>
+            <span class="badge bg-success">متصل</span>
+          <% } else { %>
+            <span class="badge bg-warning">غير متصل</span>
+          <% } %>
+        </a>
+      </li>
+
+      <li class="sidebar-item <%= currentPage === 'contacts' ? 'active' : '' %>">
+        <a href="/whatsapp/contacts" class="sidebar-link">
+          <i class="fas fa-address-book"></i> جهات الاتصال
+          <% if (contacts && contacts.length > 0) { %>
+            <span class="badge bg-info"><%= contacts.length %></span>
+          <% } %>
+        </a>
+      </li>
+
+      <li class="sidebar-item <%= currentPage === 'send-message' ? 'active' : '' %>">
+        <a href="/whatsapp/send" class="sidebar-link">
+          <i class="fas fa-paper-plane"></i> إرسال رسالة
+        </a>
+      </li>
+
+      <li class="sidebar-divider">الذكاء الاصطناعي</li>
+
+      <li class="sidebar-item <%= currentPage === 'ai-settings' ? 'active' : '' %>">
+        <a href="/ai/settings" class="sidebar-link">
+          <i class="fas fa-cogs"></i> إعدادات الذكاء الاصطناعي
+        </a>
+      </li>
+
+      <li class="sidebar-item <%= currentPage === 'ai-conversations' ? 'active' : '' %>">
+        <a href="/ai/history" class="sidebar-link">
+          <i class="fas fa-comments"></i> محادثات الذكاء الاصطناعي
+          <% if (aiConversations && aiConversations.length > 0) { %>
+            <span class="badge bg-info"><%= aiConversations.length %></span>
+          <% } %>
+        </a>
+      </li>
+
+      <li class="sidebar-divider">المستخدم</li>
+
+      <li class="sidebar-item <%= currentPage === 'profile' ? 'active' : '' %>">
+        <a href="/profile" class="sidebar-link">
+          <i class="fas fa-user-circle"></i> الملف الشخصي
+        </a>
+      </li>
+      
+      <li class="sidebar-item">
+        <a href="/auth/logout" class="sidebar-link text-danger">
+          <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sidebar-footer mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <i class="fas fa-user-circle me-1"></i> <%= user.name %>
+      </div>
+      <div>
+        <% if (isWhatsAppConnected) { %>
+          <span class="badge bg-success">WhatsApp</span>
+        <% } %>
+        <% if (isAIConfigured) { %>
+          <span class="badge bg-info">AI</span>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div> 

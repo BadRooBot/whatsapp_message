@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الملف الشخصي - WhatsApp Messenger</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <%- include('../partials/layout') %>
+
+  <div class="container my-4">
+    <div class="row">
+      <div class="col-md-12 mb-4">
+        <h1><i class="fas fa-user-circle"></i> الملف الشخصي</h1>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- بطاقة معلومات المستخدم -->
+      <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-user"></i> المعلومات الشخصية</h5>
+          </div>
+          <div class="card-body">
+            <% if (typeof message !== 'undefined' && message && message.type) { %>
+              <div class="alert alert-<%= message.type %> alert-dismissible fade show" role="alert">
+                <%= message.text %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            <% } %>
+            
+            <form id="profileForm">
+              <div class="mb-3">
+                <label for="name" class="form-label">الاسم</label>
+                <input type="text" class="form-control" id="name" name="name" value="<%= user.name %>" required>
+              </div>
+              <div class="mb-3">
+                <label for="email" class="form-label">البريد الإلكتروني</label>
+                <input type="email" class="form-control" id="email" name="email" value="<%= user.email %>" required>
+              </div>
+              <hr>
+              <h6><i class="fas fa-key"></i> تغيير كلمة المرور (اختياري)</h6>
+              <div class="mb-3">
+                <label for="currentPassword" class="form-label">كلمة المرور الحالية</label>
+                <input type="password" class="form-control" id="currentPassword" name="currentPassword">
+              </div>
+              <div class="mb-3">
+                <label for="newPassword" class="form-label">كلمة المرور الجديدة</label>
+                <input type="password" class="form-control" id="newPassword" name="newPassword">
+              </div>
+              <div class="mb-3">
+                <label for="confirmPassword" class="form-label">تأكيد كلمة المرور الجديدة</label>
+                <input type="password" class="form-control" id="confirmPassword" name="confirmPassword">
+                <div id="passwordMismatch" class="text-danger d-none">كلمات المرور غير متطابقة</div>
+              </div>
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fas fa-save"></i> حفظ التغييرات
+                </button>
+              </div>
+            </form>
+            <div id="updateResult" class="mt-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- بطاقة إحصائيات المستخدم -->
+      <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0"><i class="fas fa-chart-bar"></i> إحصائيات الحساب</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-user-check"></i> حالة الحساب</span>
+                <span class="badge bg-success">نشط</span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-calendar-alt"></i> تاريخ التسجيل</span>
+                <span><%= new Date(profile.created_at).toLocaleDateString() %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-clock"></i> آخر تحديث</span>
+                <span><%= new Date(profile.updated_at).toLocaleDateString() %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fab fa-whatsapp"></i> حالة الاتصال بـ WhatsApp</span>
+                <% if (stats.isWhatsAppConnected) { %>
+                  <span class="badge bg-success">متصل</span>
+                <% } else { %>
+                  <span class="badge bg-danger">غير متصل</span>
+                <% } %>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-address-book"></i> عدد جهات الاتصال</span>
+                <span class="badge bg-primary"><%= stats.contactsCount %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-comment-alt"></i> عدد الرسائل</span>
+                <span class="badge bg-primary"><%= stats.messagesCount %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-robot"></i> الذكاء الاصطناعي</span>
+                <% if (stats.isAIConfigured) { %>
+                  <span class="badge bg-success">مفعّل</span>
+                <% } else { %>
+                  <span class="badge bg-warning text-dark">غير مفعّل</span>
+                <% } %>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- روابط سريعة -->
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-link"></i> روابط سريعة</h5>
+          </div>
+          <div class="card-body">
+            <div class="d-grid gap-2">
+              <a href="/whatsapp/contacts" class="btn btn-outline-primary">
+                <i class="fas fa-address-book"></i> إدارة جهات الاتصال
+              </a>
+              <a href="/whatsapp/send" class="btn btn-outline-success">
+                <i class="fas fa-paper-plane"></i> إرسال رسالة
+              </a>
+              <a href="/ai/settings" class="btn btn-outline-info">
+                <i class="fas fa-robot"></i> إعدادات الذكاء الاصطناعي
+              </a>
+              <a href="/whatsapp/auth" class="btn btn-outline-warning">
+                <i class="fab fa-whatsapp"></i> اتصال WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- حذف الحساب -->
+        <div class="card shadow-sm">
+          <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fas fa-trash-alt"></i> حذف الحساب</h5>
+          </div>
+          <div class="card-body">
+            <p class="text-danger">
+              <i class="fas fa-exclamation-triangle"></i> تحذير: حذف الحساب سيؤدي إلى إزالة جميع بياناتك بشكل نهائي، بما في ذلك:
+            </p>
+            <ul class="text-danger">
+              <li>معلومات الملف الشخصي</li>
+              <li>جميع جهات الاتصال المحفوظة</li>
+              <li>سجل الرسائل</li>
+              <li>إعدادات الذكاء الاصطناعي</li>
+              <li>جلسة WhatsApp</li>
+            </ul>
+            <p>هذه العملية لا يمكن التراجع عنها.</p>
+            <div class="d-grid gap-2">
+              <button type="button" class="btn btn-danger" id="deleteAccountBtn" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                <i class="fas fa-trash-alt"></i> حذف الحساب نهائياً
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تأكيد حذف الحساب -->
+  <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="deleteAccountModalLabel">تأكيد حذف الحساب</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="text-danger">
+            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i><br>
+            أنت على وشك حذف حسابك نهائياً. هذه العملية لا يمكن التراجع عنها.
+          </p>
+          <p>للتأكيد، يرجى إدخال كلمة المرور الخاصة بك:</p>
+          <div class="mb-3">
+            <label for="deleteAccountPassword" class="form-label">كلمة المرور</label>
+            <input type="password" class="form-control" id="deleteAccountPassword" required>
+          </div>
+          <div id="deleteAccountError" class="alert alert-danger d-none"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+          <button type="button" class="btn btn-danger" id="confirmDeleteAccount">
+            <i class="fas fa-trash-alt"></i> تأكيد الحذف
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      // تهيئة إعدادات Toastr
+      toastr.options = {
+        closeButton: true,
+        progressBar: true,
+        positionClass: 'toast-top-right',
+        timeOut: 3000
+      };
+    
+      // مسك نموذج الملف الشخصي
+      const profileForm = document.getElementById('profileForm');
+      
+      // إعداد التحقق من كلمة المرور
+      const newPassword = document.getElementById('newPassword');
+      const confirmPassword = document.getElementById('confirmPassword');
+      
+      // التحقق عند تغيير أي منهما
+      if (confirmPassword) {
+        confirmPassword.addEventListener('input', function() {
+          if (newPassword.value !== confirmPassword.value) {
+            $('#passwordMismatch').removeClass('d-none');
+          } else {
+            $('#passwordMismatch').addClass('d-none');
+          }
+        });
+      }
+      
+      // معالجة تحديث الملف الشخصي
+      if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+          e.preventDefault();
+          
+          // التحقق من تطابق كلمات المرور
+          if (newPassword.value !== confirmPassword.value && newPassword.value !== '') {
+            toastr.error('كلمات المرور غير متطابقة');
+            return;
+          }
+          
+          // جمع بيانات النموذج
+          const formData = {
+            name: $('#name').val(),
+            email: $('#email').val(),
+            currentPassword: $('#currentPassword').val(),
+            newPassword: $('#newPassword').val()
+          };
+          
+          // إرسال البيانات للخادم
+          $.ajax({
+            url: '/profile/update',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(data) {
+              if (data.success) {
+                toastr.success('تم تحديث الملف الشخصي بنجاح');
+                // مسح حقول كلمة المرور
+                $('#currentPassword').val('');
+                $('#newPassword').val('');
+                $('#confirmPassword').val('');
+              } else {
+                toastr.error(data.error || 'حدث خطأ أثناء تحديث الملف الشخصي');
+              }
+            },
+            error: function(xhr) {
+              console.error('Error:', xhr);
+              toastr.error('حدث خطأ في الاتصال بالخادم');
+            }
+          });
+        });
+      }
+
+      // معالجة حذف الحساب
+      $('#confirmDeleteAccount').on('click', function() {
+        // إعادة تعيين حالة الخطأ
+        $('#deleteAccountError').addClass('d-none');
+        
+        // التحقق من إدخال كلمة المرور
+        const password = $('#deleteAccountPassword').val();
+        if (!password) {
+          $('#deleteAccountError').text('يرجى إدخال كلمة المرور للتأكيد').removeClass('d-none');
+          return;
+        }
+        
+        // إظهار رسالة انتظار
+        const $btn = $(this);
+        const originalText = $btn.html();
+        $btn.html('<i class="fas fa-spinner fa-spin"></i> جاري الحذف...').prop('disabled', true);
+        
+        // إرسال طلب حذف الحساب
+        $.ajax({
+          url: '/profile/delete-account',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ password: password }),
+          success: function(data) {
+            if (data.success) {
+              toastr.success('تم حذف الحساب بنجاح');
+              // توجيه المستخدم إلى صفحة تسجيل الدخول بعد فترة قصيرة
+              setTimeout(function() {
+                window.location.href = '/auth/login';
+              }, 2000);
+            } else {
+              // إظهار رسالة الخطأ
+              $('#deleteAccountError').text(data.message || 'فشل في حذف الحساب').removeClass('d-none');
+              // إعادة الزر إلى حالته الأصلية
+              $btn.html(originalText).prop('disabled', false);
+            }
+          },
+          error: function(xhr) {
+            console.error('Error:', xhr);
+            $('#deleteAccountError').text('حدث خطأ في الاتصال بالخادم').removeClass('d-none');
+            // إعادة الزر إلى حالته الأصلية
+            $btn.html(originalText).prop('disabled', false);
+          }
+        });
+      });
+      
+      // مسح كلمة المرور عند إغلاق النافذة المنبثقة
+      $('#deleteAccountModal').on('hidden.bs.modal', function () {
+        $('#deleteAccountPassword').val('');
+        $('#deleteAccountError').addClass('d-none');
+        $('#confirmDeleteAccount').prop('disabled', false).html('<i class="fas fa-trash-alt"></i> تأكيد الحذف');
+      });
+    });
+  </script>
+</body>
+</html> 

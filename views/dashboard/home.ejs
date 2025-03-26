@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة التحكم - WhatsApp Messenger</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  
+
+  <div class="container-fluid">
+    <div class="row">
+      <%- include('../partials/layout') %>
+      <div class="col-md-10 main-content">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="mb-4"><i class="fas fa-tachometer-alt"></i> لوحة التحكم</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header bg-primary text-white">
+                <h4><i class="fab fa-whatsapp"></i> حالة WhatsApp</h4>
+              </div>
+              <div class="card-body">
+                <% if (sessionStatus && sessionStatus.status === 'READY') { %>
+                  <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> متصل بـ WhatsApp
+                  </div>
+                  <p>يمكنك الآن إرسال رسائل واستخدام جميع ميزات التطبيق.</p>
+                  <a href="/whatsapp/contacts" class="btn btn-primary">
+                    <i class="fas fa-address-book"></i> عرض جهات الاتصال
+                  </a>
+                  <a href="/whatsapp/send" class="btn btn-success">
+                    <i class="fas fa-paper-plane"></i> إرسال رسالة
+                  </a>
+                <% } else if (sessionStatus && sessionStatus.status === 'AUTHENTICATED') { %>
+                  <div class="alert alert-info">
+                    <i class="fas fa-sync fa-spin"></i> جاري تهيئة WhatsApp...
+                  </div>
+                  <p>تم المصادقة، لكن الاتصال لم يكتمل بعد. يرجى الانتظار لحظة.</p>
+                  <a href="/whatsapp/auth" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> تحديث الحالة
+                  </a>
+                <% } else { %>
+                  <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> غير متصل
+                  </div>
+                  <p>أنت غير متصل بـ WhatsApp. قم بتسجيل الدخول لاستخدام جميع ميزات التطبيق.</p>
+                  <a href="/whatsapp/auth" class="btn btn-primary">
+                    <i class="fab fa-whatsapp"></i> تسجيل الدخول إلى WhatsApp
+                  </a>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card mb-4">
+              <div class="card-header bg-success text-white">
+                <h4><i class="fas fa-robot"></i> حالة الذكاء الاصطناعي</h4>
+              </div>
+              <div class="card-body">
+                <p>استخدم الذكاء الاصطناعي للرد تلقائيًا على الرسائل الواردة.</p>
+                <a href="/ai/settings" class="btn btn-success">
+                  <i class="fas fa-cog"></i> إعدادات الذكاء الاصطناعي
+                </a>
+                <a href="/ai/history" class="btn btn-info">
+                  <i class="fas fa-comments"></i> سجل المحادثات
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header bg-info text-white">
+                <h4><i class="fas fa-info-circle"></i> كيفية الاستخدام</h4>
+              </div>
+              <div class="card-body">
+                <ol>
+                  <li><strong>قم بتسجيل الدخول إلى WhatsApp</strong> - استخدم زر "تسجيل الدخول إلى WhatsApp" لمسح رمز QR باستخدام تطبيق WhatsApp على هاتفك.</li>
+                  <li><strong>استعرض جهات الاتصال</strong> - بعد تسجيل الدخول، ستتمكن من رؤية جميع جهات الاتصال والمجموعات الخاصة بك.</li>
+                  <li><strong>أرسل رسائل</strong> - اختر جهات الاتصال أو المجموعات التي تريد إرسال رسالة إليها، واكتب الرسالة واضغط على زر الإرسال.</li>
+                  <li><strong>قم بتكوين الذكاء الاصطناعي</strong> - قم بتفعيل الردود التلقائية بالذكاء الاصطناعي على الرسائل الواردة.</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/main.js"></script>
+</body>
+</html> 

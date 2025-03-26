@@ -1,0 +1,176 @@
+/* General Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+}
+
+.main-content {
+  padding: 20px;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  height: 100vh;
+  background-color: #25d366;
+  color: white;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+}
+
+.sidebar-content {
+  padding: 15px;
+}
+
+.user-avatar {
+  color: white;
+}
+
+.nav-link {
+  color: white;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.nav-link.text-danger {
+  color: #ffcccc !important;
+}
+
+.nav-link.text-danger:hover {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+/* Card Styles */
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.card-header {
+  border-top-left-radius: 10px !important;
+  border-top-right-radius: 10px !important;
+}
+
+/* WhatsApp QR Code */
+.qr-code-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+/* Contact List */
+.contact-list {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.contact-item {
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+.contact-item:hover {
+  background-color: #f8f9fa;
+  border-left-color: #25d366;
+}
+
+.contact-item.selected {
+  background-color: #e9f7ef;
+  border-left-color: #25d366;
+}
+
+/* Message Styles */
+.message-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 15px;
+  background-color: #e5ddd5;
+  border-radius: 5px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 10px 15px;
+  border-radius: 7.5px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.message-sent {
+  background-color: #dcf8c6;
+  margin-left: auto;
+}
+
+.message-received {
+  background-color: white;
+}
+
+/* Login/Register Forms */
+.auth-container {
+  max-width: 450px;
+  margin: 80px auto;
+}
+
+.auth-logo {
+  color: #25d366;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #25d366;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* أنماط البحث في جهات الاتصال */
+.search-results-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+}
+
+.search-result-item {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-result-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* إضافة نمط لزر الإضافة */
+.search-result-item .btn-success {
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.search-result-item:hover .btn-success {
+  opacity: 1;
+}
+
+/* نمط نتائج البحث */
+#allowedSearchResults, #blockedSearchResults {
+  position: relative;
+  z-index: 1000;
+} 

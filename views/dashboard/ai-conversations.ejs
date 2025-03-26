@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>محادثات الذكاء الاصطناعي - WhatsApp Messenger</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .conversation-card {
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .conversation-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .message-bubble {
+      border-radius: 18px;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      max-width: 75%;
+      position: relative;
+    }
+    .user-message {
+      background-color: #dcf8c6;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+    .ai-message {
+      background-color: #f0f0f0;
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+    }
+    .message-time {
+      font-size: 0.7rem;
+      text-align: right;
+      margin-top: 4px;
+      color: #999;
+    }
+    .message-container {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .conversation-list {
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .contact-info {
+      font-size: 0.9rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/layout') %>
+  <div class="container-fluid">
+    <div class="row">
+      
+      <div class="col-md-10 main-content">
+        <div class="row">
+          <div class="col-12">
+            <h1 class="mb-4"><i class="fas fa-comments"></i> محادثات الذكاء الاصطناعي</h1>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card mb-4">
+              <div class="card-header bg-primary text-white">
+                <h4><i class="fas fa-history"></i> المحادثات السابقة</h4>
+              </div>
+              <div class="card-body p-0">
+                <div class="input-group p-2">
+                  <span class="input-group-text"><i class="fas fa-search"></i></span>
+                  <input type="text" class="form-control" id="conversation-search" placeholder="البحث في المحادثات...">
+                </div>
+                
+                <div class="conversation-list">
+                  <% if (conversations.length === 0) { %>
+                    <div class="text-center p-5">
+                      <i class="fas fa-robot fa-4x text-muted mb-3"></i>
+                      <h5>لا توجد محادثات سابقة</h5>
+                      <p>ستظهر محادثات الذكاء الاصطناعي هنا بمجرد بدء استخدامه.</p>
+                    </div>
+                  <% } else { %>
+                    <% conversations.forEach(conversation => { %>
+                      <div class="conversation-card p-3 border-bottom" data-id="<%= conversation.id %>">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <h5 class="m-0">
+                            <% if (conversation.contact_type === 'group') { %>
+                              <i class="fas fa-users text-info me-2"></i>
+                            <% } else { %>
+                              <i class="fas fa-user text-primary me-2"></i>
+                            <% } %>
+                            <%= conversation.contact_name %>
+                          </h5>
+                          <small class="text-muted"><%= formatDate(conversation.last_message_time) %></small>
+                        </div>
+                        <div class="contact-info mb-2">
+                          <% if (conversation.contact_number) { %>
+                            <i class="fas fa-phone-alt me-1"></i> <%= conversation.contact_number %>
+                          <% } %>
+                        </div>
+                        <p class="text-truncate mb-0">
+                          <strong><%= conversation.last_message_sender === 'ai' ? 'AI: ' : 'أنت: ' %></strong>
+                          <%= conversation.last_message_text %>
+                        </p>
+                        <div class="d-flex justify-content-end">
+                          <span class="badge bg-success me-1"><%= conversation.message_count %> رسائل</span>
+                          <button class="btn btn-sm btn-outline-danger delete-conversation" data-id="<%= conversation.id %>">
+                            <i class="fas fa-trash"></i>
+                          </button>
+                        </div>
+                      </div>
+                    <% }); %>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header bg-success text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h4 id="conversation-title"><i class="fas fa-comment-dots"></i> محادثة مع الذكاء الاصطناعي</h4>
+                  <div>
+                    <button class="btn btn-sm btn-light" id="refresh-conversation">
+                      <i class="fas fa-sync-alt"></i> تحديث
+                    </button>
+                    <button class="btn btn-sm btn-light" id="export-conversation">
+                      <i class="fas fa-file-export"></i> تصدير
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="conversation-placeholder" class="text-center p-5">
+                  <i class="fas fa-robot fa-4x text-muted mb-3"></i>
+                  <h5>اختر محادثة لعرضها</h5>
+                  <p>انقر على إحدى المحادثات من القائمة لعرض الرسائل.</p>
+                </div>
+                
+                <div id="conversation-container" class="message-container" style="display: none;">
+                  <!-- هنا سيتم عرض رسائل المحادثة -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/main.js"></script>
+  <script>
+    $(document).ready(function() {
+      // البحث في المحادثات
+      $("#conversation-search").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $(".conversation-card").filter(function() {
+          $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+      });
+      
+      // عرض المحادثة عند النقر عليها
+      $(".conversation-card").click(function(e) {
+        // تجنب النقر على زر الحذف
+        if (!$(e.target).hasClass('delete-conversation') && !$(e.target).closest('.delete-conversation').length) {
+          const conversationId = $(this).data('id');
+          loadConversation(conversationId);
+          
+          // إضافة التحديد للمحادثة المختارة
+          $(".conversation-card").removeClass('bg-light');
+          $(this).addClass('bg-light');
+        }
+      });
+      
+      // حذف المحادثة
+      $(".delete-conversation").click(function(e) {
+        e.stopPropagation();
+        const conversationId = $(this).data('id');
+        
+        if (confirm("هل أنت متأكد من حذف هذه المحادثة؟")) {
+          $.ajax({
+            url: `/ai/conversations/${conversationId}`,
+            type: "DELETE",
+            success: function(response) {
+              // إزالة المحادثة من القائمة
+              $(`.conversation-card[data-id="${conversationId}"]`).remove();
+              
+              // إخفاء المحادثة إذا كانت معروضة حاليا
+              if ($("#conversation-container").data('id') === conversationId) {
+                $("#conversation-container").hide();
+                $("#conversation-placeholder").show();
+              }
+              
+              alert("تم حذف المحادثة بنجاح!");
+            },
+            error: function(error) {
+              alert("حدث خطأ أثناء حذف المحادثة: " + error.responseJSON.message);
+            }
+          });
+        }
+      });
+      
+      // تحديث المحادثة
+      $("#refresh-conversation").click(function() {
+        const conversationId = $("#conversation-container").data('id');
+        if (conversationId) {
+          loadConversation(conversationId);
+        }
+      });
+      
+      // تصدير المحادثة
+      $("#export-conversation").click(function() {
+        const conversationId = $("#conversation-container").data('id');
+        if (conversationId) {
+          window.location.href = `/ai/conversations/${conversationId}/export`;
+        } else {
+          alert("الرجاء اختيار محادثة للتصدير أولاً.");
+        }
+      });
+      
+      // تحميل محادثة معينة
+      function loadConversation(conversationId) {
+        $.ajax({
+          url: `/ai/conversations/${conversationId}`,
+          type: "GET",
+          success: function(response) {
+            // تحديث عنوان المحادثة
+            $("#conversation-title").html(`<i class="fas fa-comment-dots"></i> محادثة مع ${response.contact_name}`);
+            
+            // إخفاء نص الإرشاد وإظهار المحادثة
+            $("#conversation-placeholder").hide();
+            $("#conversation-container").show();
+            
+            // تخزين معرف المحادثة
+            $("#conversation-container").data('id', conversationId);
+            
+            // عرض الرسائل
+            let messagesHtml = '';
+            response.messages.forEach(message => {
+              if (message.sender === 'user') {
+                messagesHtml += `
+                  <div class="message-bubble user-message">
+                    <div class="message-content">${message.content}</div>
+                    <div class="message-time">${formatMessageTime(message.timestamp)}</div>
+                  </div>
+                `;
+              } else {
+                messagesHtml += `
+                  <div class="message-bubble ai-message">
+                    <div class="message-content">${message.content}</div>
+                    <div class="message-time">${formatMessageTime(message.timestamp)}</div>
+                  </div>
+                `;
+              }
+            });
+            
+            $("#conversation-container").html(messagesHtml);
+            
+            // التمرير إلى آخر رسالة
+            $("#conversation-container").scrollTop($("#conversation-container")[0].scrollHeight);
+          },
+          error: function(error) {
+            alert("حدث خطأ أثناء تحميل المحادثة: " + error.responseJSON.message);
+          }
+        });
+      }
+      
+      // تنسيق وقت الرسالة
+      function formatMessageTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) + 
+               ' | ' + date.toLocaleDateString('ar-SA');
+      }
+    });
+  </script>
+</body>
+</html> 
